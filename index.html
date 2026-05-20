@@ -1,0 +1,1089 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🎵 音乐16人格测试</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0f0f1a;
+    --card-bg: rgba(255,255,255,0.06);
+    --card-border: rgba(255,255,255,0.12);
+    --text: #e8e8f0;
+    --text-muted: rgba(232,232,240,0.55);
+    --accent: #a855f7;
+  }
+
+  html, body {
+    min-height: 100%;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Noto Sans SC', sans-serif;
+    overflow-x: hidden;
+  }
+
+  /* ── Canvas for confetti ── */
+  #confetti-canvas {
+    position: fixed; inset: 0;
+    pointer-events: none;
+    z-index: 999;
+    display: none;
+  }
+
+  /* ── Pages ── */
+  .page {
+    min-height: 100vh;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 16px;
+    opacity: 0;
+    transition: opacity .4s ease;
+  }
+  .page.active { display: flex; }
+  .page.visible { opacity: 1; }
+
+  /* ── Stars bg ── */
+  .stars {
+    position: fixed; inset: 0; pointer-events: none; z-index: 0;
+    background:
+      radial-gradient(ellipse at 20% 20%, rgba(168,85,247,.15) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 80%, rgba(99,102,241,.12) 0%, transparent 50%);
+  }
+
+  /* ── Landing ── */
+  #page-landing { position: relative; text-align: center; gap: 32px; }
+
+  .landing-emoji {
+    font-size: 80px;
+    animation: float 3s ease-in-out infinite;
+    filter: drop-shadow(0 0 30px rgba(168,85,247,.6));
+  }
+
+  @keyframes float {
+    0%,100% { transform: translateY(0); }
+    50% { transform: translateY(-14px); }
+  }
+
+  .landing-title {
+    font-size: clamp(28px, 7vw, 52px);
+    font-weight: 900;
+    background: linear-gradient(135deg, #fff 0%, #c084fc 50%, #818cf8 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1.2;
+  }
+
+  .landing-sub {
+    font-size: clamp(14px, 3.5vw, 18px);
+    color: var(--text-muted);
+    max-width: 360px;
+    line-height: 1.7;
+  }
+
+  .btn-start {
+    padding: 16px 48px;
+    border-radius: 50px;
+    border: none;
+    background: linear-gradient(135deg, #a855f7, #6366f1);
+    color: #fff;
+    font-size: 18px;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    box-shadow: 0 0 40px rgba(168,85,247,.45);
+    transition: transform .2s, box-shadow .2s;
+  }
+  .btn-start:hover { transform: scale(1.05); box-shadow: 0 0 60px rgba(168,85,247,.6); }
+
+  .landing-note {
+    font-size: 13px;
+    color: var(--text-muted);
+    opacity: .7;
+  }
+
+  /* ── Quiz ── */
+  #page-quiz { gap: 0; padding: 0; }
+
+  .quiz-inner {
+    width: 100%; max-width: 680px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding: 32px 16px 24px;
+    gap: 24px;
+  }
+
+  .progress-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .progress-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+
+  .progress-bar {
+    height: 4px;
+    background: rgba(255,255,255,.12);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #a855f7, #6366f1);
+    border-radius: 4px;
+    transition: width .4s ease;
+  }
+
+  .question-card {
+    flex: 1;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 24px;
+    padding: 32px 28px;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+    transition: opacity .25s, transform .25s;
+  }
+
+  .question-card.fade-out { opacity: 0; transform: translateX(-20px); }
+  .question-card.fade-in { opacity: 0; transform: translateX(20px); }
+
+  .question-num {
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: .1em;
+    color: var(--accent);
+    text-transform: uppercase;
+  }
+
+  .question-text {
+    font-size: clamp(16px, 4vw, 20px);
+    font-weight: 500;
+    line-height: 1.6;
+    color: var(--text);
+  }
+
+  .likert-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .likert-btn {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 20px;
+    border-radius: 50px;
+    border: 1.5px solid var(--card-border);
+    background: rgba(255,255,255,.04);
+    color: var(--text);
+    font-size: 14px;
+    font-family: inherit;
+    cursor: pointer;
+    transition: border-color .2s, background .2s, box-shadow .2s, transform .15s;
+    text-align: left;
+  }
+
+  .likert-btn:hover {
+    background: rgba(255,255,255,.09);
+    border-color: rgba(255,255,255,.25);
+    transform: translateX(4px);
+  }
+
+  .likert-btn.selected {
+    border-color: var(--accent);
+    background: rgba(168,85,247,.18);
+    box-shadow: 0 0 20px rgba(168,85,247,.25);
+  }
+
+  .likert-emoji { font-size: 18px; flex-shrink: 0; }
+  .likert-label { flex: 1; }
+
+  .quiz-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .btn-nav {
+    padding: 12px 28px;
+    border-radius: 50px;
+    border: 1.5px solid var(--card-border);
+    background: transparent;
+    color: var(--text);
+    font-size: 14px;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background .2s, border-color .2s;
+  }
+  .btn-nav:hover { background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.3); }
+  .btn-nav:disabled { opacity: .3; cursor: not-allowed; }
+
+  .btn-next {
+    padding: 12px 32px;
+    border-radius: 50px;
+    border: none;
+    background: linear-gradient(135deg, #a855f7, #6366f1);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    transition: transform .15s, box-shadow .15s;
+    box-shadow: 0 0 20px rgba(168,85,247,.3);
+  }
+  .btn-next:hover { transform: scale(1.03); box-shadow: 0 0 30px rgba(168,85,247,.45); }
+
+  /* ── Result ── */
+  #page-result { gap: 0; padding: 0; align-items: stretch; }
+
+  .result-inner {
+    width: 100%;
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 40px 20px 60px;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+  }
+
+  .result-hero {
+    text-align: center;
+    padding: 48px 24px 40px;
+    border-radius: 28px;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    backdrop-filter: blur(20px);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .result-hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 50% 0%, var(--personality-color, #a855f7) 0%, transparent 65%);
+    opacity: .18;
+    pointer-events: none;
+  }
+
+  .result-emoji { font-size: 72px; margin-bottom: 16px; display: block; }
+
+  .result-name {
+    font-size: clamp(26px, 7vw, 40px);
+    font-weight: 900;
+    background: linear-gradient(135deg, #fff 0%, var(--personality-color, #a855f7) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 10px;
+  }
+
+  .result-tagline {
+    font-size: 14px;
+    color: var(--personality-color, #a855f7);
+    font-weight: 500;
+    letter-spacing: .05em;
+    margin-bottom: 20px;
+  }
+
+  .result-desc {
+    font-size: 15px;
+    color: var(--text-muted);
+    line-height: 1.8;
+    max-width: 520px;
+    margin: 0 auto;
+  }
+
+  /* Dimension bars */
+  .dims {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .dim-bar-wrap {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 16px;
+    padding: 14px 16px;
+    backdrop-filter: blur(10px);
+  }
+
+  .dim-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+  }
+
+  .dim-bar-bg {
+    height: 6px;
+    background: rgba(255,255,255,.1);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  .dim-bar-fill {
+    height: 100%;
+    border-radius: 6px;
+    background: linear-gradient(90deg, var(--personality-color, #a855f7), #818cf8);
+    transition: width .8s ease .3s;
+  }
+
+  /* Artists grid */
+  .section-title {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: .1em;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  .artists-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 12px;
+  }
+
+  .artist-card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 16px;
+    padding: 16px;
+    backdrop-filter: blur(10px);
+    transition: transform .2s, border-color .2s;
+  }
+  .artist-card:hover { transform: translateY(-3px); border-color: var(--personality-color, #a855f7); }
+
+  .artist-name {
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: var(--text);
+  }
+
+  .artist-songs {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  .artist-song {
+    font-size: 11px;
+    color: var(--text-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* Secondary matches */
+  .secondary-matches {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .secondary-chip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    border-radius: 50px;
+    border: 1.5px solid var(--card-border);
+    background: var(--card-bg);
+    backdrop-filter: blur(10px);
+    font-size: 13px;
+    cursor: default;
+    transition: border-color .2s;
+  }
+  .secondary-chip:hover { border-color: rgba(255,255,255,.3); }
+
+  .chip-emoji { font-size: 16px; }
+  .chip-name { font-weight: 600; }
+  .chip-tag { color: var(--text-muted); font-size: 11px; }
+
+  /* Action buttons */
+  .result-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .btn-share {
+    flex: 1; min-width: 140px; max-width: 220px;
+    padding: 14px 24px;
+    border-radius: 50px;
+    border: none;
+    background: linear-gradient(135deg, var(--personality-color, #a855f7), #6366f1);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    box-shadow: 0 0 25px rgba(168,85,247,.3);
+    transition: transform .15s, box-shadow .15s;
+  }
+  .btn-share:hover { transform: scale(1.04); box-shadow: 0 0 35px rgba(168,85,247,.45); }
+
+  .btn-restart {
+    flex: 1; min-width: 140px; max-width: 220px;
+    padding: 14px 24px;
+    border-radius: 50px;
+    border: 1.5px solid var(--card-border);
+    background: transparent;
+    color: var(--text);
+    font-size: 14px;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background .2s, border-color .2s;
+  }
+  .btn-restart:hover { background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.3); }
+
+  .copy-toast {
+    position: fixed;
+    bottom: 32px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: rgba(30,30,50,.95);
+    border: 1px solid var(--card-border);
+    color: var(--text);
+    padding: 12px 24px;
+    border-radius: 50px;
+    font-size: 14px;
+    transition: transform .3s ease;
+    z-index: 1000;
+    white-space: nowrap;
+  }
+  .copy-toast.show { transform: translateX(-50%) translateY(0); }
+
+  @media (max-width: 480px) {
+    .dims { grid-template-columns: 1fr; }
+    .artists-grid { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="stars"></div>
+<canvas id="confetti-canvas"></canvas>
+<div id="toast" class="copy-toast">✅ 已复制到剪贴板！</div>
+
+<!-- LANDING -->
+<div id="page-landing" class="page">
+  <div class="landing-emoji">🎵</div>
+  <div>
+    <h1 class="landing-title">音乐16人格测试</h1>
+  </div>
+  <p class="landing-sub">20道题，发现你的音乐灵魂<br>你是哪一种听音乐的人？</p>
+  <button class="btn-start" onclick="startQuiz()">开始测试</button>
+  <p class="landing-note">约需3分钟 · 共20道题</p>
+</div>
+
+<!-- QUIZ -->
+<div id="page-quiz" class="page">
+  <div class="quiz-inner">
+    <div class="progress-wrap">
+      <div class="progress-label">
+        <span id="q-label">第 1 题</span>
+        <span id="q-total">共 20 题</span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:5%"></div></div>
+    </div>
+
+    <div class="question-card" id="question-card">
+      <div class="question-num" id="q-num">Q1</div>
+      <div class="question-text" id="q-text"></div>
+      <div class="likert-wrap" id="likert-wrap"></div>
+    </div>
+
+    <div class="quiz-nav">
+      <button class="btn-nav" id="btn-prev" onclick="navigate(-1)">← 上一题</button>
+      <button class="btn-next" id="btn-next" onclick="navigate(1)">下一题 →</button>
+    </div>
+  </div>
+</div>
+
+<!-- RESULT -->
+<div id="page-result" class="page">
+  <div class="result-inner" id="result-inner"></div>
+</div>
+
+<script>
+// ─── DATA ────────────────────────────────────────────────────────────────────
+
+const QUESTIONS = [
+  { text: "听到一首新歌，我会先被鼓点/节拍抓住，而不是旋律。", dim: "RM", reversed: false },
+  { text: "我喜欢一边听音乐一边仔细读歌词，歌词对我来说很重要。", dim: "VT", reversed: false },
+  { text: "我经常在睡前或发呆时听音乐，把它当成进入内心的钥匙。", dim: "IE", reversed: false },
+  { text: "没有人声、纯器乐的曲子也能让我完全沉进去。", dim: "VT", reversed: true },
+  { text: "我喜欢有电子合成感、制作精良的现代音乐，而不是原声录音感。", dim: "SA", reversed: false },
+  { text: "听音乐时，我会忍不住跟着节奏点头、踏脚或摇摆。", dim: "RM", reversed: false },
+  { text: "我更偏向把音乐分享给朋友，而不是一个人偷偷收藏。", dim: "IE", reversed: true },
+  { text: "我会花时间深挖一个歌手的全部专辑，而不是随机发现新歌。", dim: "IE", reversed: false },
+  { text: "听到吉他、钢琴等真实乐器的声音，我会感觉更温暖、更踏实。", dim: "SA", reversed: true },
+  { text: "音乐对我来说更像是「出口」——它帮我释放，而不是沉淀。", dim: "IE", reversed: true },
+  { text: "我觉得旋律比节奏更能触动我的情绪。", dim: "RM", reversed: true },
+  { text: "我喜欢那种「歌词说出了我想说却没说出口的话」的感觉。", dim: "VT", reversed: false },
+  { text: "我喜欢把音乐当成背景氛围，而不是专注聆听的对象。", dim: "VT", reversed: true },
+  { text: "我觉得现场演出的「能量和互动」比「技术和还原度」更重要。", dim: "IE", reversed: true },
+  { text: "我会被沙哑、有质感、不完美的嗓音打动，胜过精准完美的高音。", dim: "SA", reversed: true },
+  { text: "我喜欢跟上潮流、听大家都在聊的热门音乐。", dim: "IE", reversed: true },
+  { text: "一首歌如果没有歌词，我觉得它缺少了「灵魂」。", dim: "VT", reversed: false },
+  { text: "我愿意听完全陌生风格的音乐，觉得探索本身就有趣。", dim: "SA", reversed: false },
+  { text: "某些音乐会让我想起一段记忆或某个人，这比感官刺激更重要。", dim: "IE", reversed: false },
+  { text: "节奏快、有爆发力的音乐让我感觉更有活力，我比较偏好这类。", dim: "RM", reversed: false },
+];
+
+const LIKERT = [
+  { label: "非常符合", emoji: "😄", value: 5 },
+  { label: "比较符合", emoji: "🙂", value: 4 },
+  { label: "说不准",   emoji: "😐", value: 3 },
+  { label: "不太符合", emoji: "😕", value: 2 },
+  { label: "完全不符合",emoji: "😞", value: 1 },
+];
+
+const PERSONALITIES = [
+  {
+    id: 1, emoji: "🌟", name: "霓虹造梦机", accentColor: "#FF6B9D",
+    tagline: "欧美主流流行 · 叙事型情绪大片",
+    vector: [1,0,1,1], // R, I, S, V
+    description: "你是流行世界的造梦者，每首歌都是一部小电影，旋律即是情绪，情绪即是你自己。你对音乐的热情是直接的、真诚的，你从不觉得喜欢流行有什么不好意思。",
+    artists: [
+      { name: "Taylor Swift", songs: ["Love Story", "Anti-Hero", "Shake It Off", "All Too Well"] },
+      { name: "Katy Perry", songs: ["Roar", "Teenage Dream", "Firework"] },
+      { name: "Ariana Grande", songs: ["thank u, next", "7 rings", "positions"] },
+      { name: "Billie Eilish", songs: ["bad guy", "Happier Than Ever", "Ocean Eyes"] },
+    ]
+  },
+  {
+    id: 2, emoji: "🪩", name: "派对变色龙", accentColor: "#A855F7",
+    tagline: "欧美电音流行 · 舞台张力与感官冲击",
+    vector: [1,0,1,0],
+    description: "你在音乐里寻找肾上腺素，舞台感和电子脉冲让你感到最真实的自己。音乐对你而言是一种变身，你可以在不同的节拍里成为不同的人。",
+    artists: [
+      { name: "Lady Gaga", songs: ["Bad Romance", "Poker Face", "Shallow", "Alejandro"] },
+      { name: "Dua Lipa", songs: ["Levitating", "Don't Start Now", "Physical"] },
+      { name: "The Weeknd", songs: ["Blinding Lights", "Starboy", "Save Your Tears"] },
+      { name: "Daft Punk", songs: ["Get Lucky", "One More Time", "Around the World"] },
+    ]
+  },
+  {
+    id: 3, emoji: "🌧️", name: "小镇忧郁客", accentColor: "#6366F1",
+    tagline: "欧美独立流行 · 迷幻内省青春疼痛",
+    vector: [0,1,1,0],
+    description: "你住在自己的内心小镇里，音乐是那里唯一的街灯，照亮所有说不清的情绪。你欣赏那些没有被过度打磨的声音，因为粗粝才是真实。",
+    artists: [
+      { name: "Conan Gray", songs: ["Heather", "Maniac", "People Watching"] },
+      { name: "Lorde", songs: ["Royals", "Green Light", "Tennis Court"] },
+      { name: "Phoebe Bridgers", songs: ["Motion Sickness", "Garden Song"] },
+      { name: "Troye Sivan", songs: ["Youth", "BLOOM", "Easy"] },
+    ]
+  },
+  {
+    id: 4, emoji: "🎤", name: "街头说唱客", accentColor: "#F59E0B",
+    tagline: "欧美说唱 Hip-Hop · 地下到主流",
+    vector: [1,0,0,1],
+    description: "节奏是你的语言，歌词是你的武器，街头的真实比任何旋律都更震撼你的内心。你欣赏那些敢于直说的人，那些把生活写进押韵里的勇气。",
+    artists: [
+      { name: "Kendrick Lamar", songs: ["HUMBLE.", "Money Trees", "Not Like Us"] },
+      { name: "Drake", songs: ["God's Plan", "Hotline Bling", "One Dance"] },
+      { name: "Eminem", songs: ["Lose Yourself", "Stan", "Without Me"] },
+      { name: "Post Malone", songs: ["Circles", "Sunflower", "rockstar"] },
+    ]
+  },
+  {
+    id: 5, emoji: "🌦️", name: "英伦迷失者", accentColor: "#64748B",
+    tagline: "英式另类摇滚 · 颓废诗意存在主义",
+    vector: [0,1,0,0],
+    description: "你迷失在英伦的阴雨里，那些颓废而诗意的吉他声才是你的母语。你不追求热闹，你在音乐里寻找某种说不清楚但一听就知道的东西。",
+    artists: [
+      { name: "Radiohead", songs: ["Creep", "Karma Police", "Fake Plastic Trees"] },
+      { name: "Oasis", songs: ["Wonderwall", "Champagne Supernova"] },
+      { name: "The Smiths", songs: ["There Is a Light", "How Soon Is Now?"] },
+      { name: "Arctic Monkeys", songs: ["Do I Wanna Know?", "R U Mine?", "505"] },
+    ]
+  },
+  {
+    id: 6, emoji: "🎹", name: "钢琴冥想者", accentColor: "#8ECAE6",
+    tagline: "新古典纯器乐 · 无声电影的配乐",
+    vector: [0,1,0,0],
+    description: "你不需要歌词，音符本身就是完整的语言，每段旋律都是一场无声的电影。你在纯粹的声音里找到了语言无法抵达的那个角落。",
+    artists: [
+      { name: "久石让", songs: ["天空之城", "千与千寻", "夏", "海的那边"] },
+      { name: "Ludovico Einaudi", songs: ["Experience", "Nuvole Bianche", "Una Mattina"] },
+      { name: "Yiruma", songs: ["River Flows in You", "Kiss the Rain"] },
+      { name: "李云迪", songs: ["月光奏鸣曲", "肖邦夜曲", "英雄波兰舞曲"] },
+    ]
+  },
+  {
+    id: 7, emoji: "✨", name: "K-POP星云", accentColor: "#EC4899",
+    tagline: "韩流全谱系 · 偶像工业与地下灵魂",
+    vector: [1,0,1,1],
+    description: "你活在精心打造的星光里，每个音符都经过计算，每次感动却都真实无比。K-POP给了你一种独特的体验：在完美的工业产品里找到真实的情感共鸣。",
+    artists: [
+      { name: "BTS", songs: ["Spring Day", "Dynamite", "Boy With Luv", "DNA"] },
+      { name: "权志龙 G-Dragon", songs: ["Crooked", "Fantastic Baby", "ONE OF A KIND"] },
+      { name: "BLACKPINK", songs: ["DDU-DU DDU-DU", "Kill This Love", "How You Like That"] },
+      { name: "IU 李知恩", songs: ["Celebrity", "LILAC", "好日子", "Palette"] },
+    ]
+  },
+  {
+    id: 8, emoji: "💝", name: "芭乐深情人", accentColor: "#F97316",
+    tagline: "华语芭乐励志爱情 · KTV 必点人格",
+    vector: [0,0,0,1],
+    description: "你相信每段感情都值得一首歌，旋律里藏着勇气，歌词里住着所有爱过的人。你从不觉得动情是软弱，能被一首歌唱哭是一种天赋。",
+    artists: [
+      { name: "莫文蔚", songs: ["盛夏的果实", "如果没有你", "广岛之恋", "他不爱我"] },
+      { name: "A-Lin 黄丽玲", songs: ["给我一个理由忘记", "哼幸福", "你给的爱"] },
+      { name: "梁静茹", songs: ["勇气", "宁夏", "情歌", "崇拜"] },
+      { name: "张惠妹", songs: ["我最亲爱的", "原来你什么都不想要", "记得", "解脱"] },
+    ]
+  },
+  {
+    id: 9, emoji: "🌆", name: "城市灵魂客", accentColor: "#14B8A6",
+    tagline: "华语 R&B 爵士流行 · 精致都市夜晚",
+    vector: [1,1,0,1],
+    description: "都市的夜晚为你量身定制，灵魂乐的温度恰好填满城市里那一点孤独。你有品味，你知道什么叫真正的 groove，什么叫好的制作。",
+    artists: [
+      { name: "陶喆", songs: ["爱很简单", "普通朋友", "就是这样", "找自己"] },
+      { name: "方大同", songs: ["可以", "爱爱爱", "骑士", "写给你的歌"] },
+      { name: "王力宏", songs: ["你不知道的事", "落叶归根", "Forever Love"] },
+      { name: "薛凯琪", songs: ["Mr. Right", "娃娃", "刚刚好", "幸运儿"] },
+    ]
+  },
+  {
+    id: 10, emoji: "🎸", name: "公路流浪者", accentColor: "#84CC16",
+    tagline: "华语民谣吉他 · 乡愁与流浪的诗",
+    vector: [0,1,0,1],
+    description: "你背着吉他走在某条公路上，那些城市和离别的名字都变成了歌。民谣给了你一种其他音乐给不了的东西：真实的重量。",
+    artists: [
+      { name: "赵雷", songs: ["成都", "理想三旬", "我记得", "南方姑娘"] },
+      { name: "马頔", songs: ["南山南", "踏古", "我曾", "平静"] },
+      { name: "李志", songs: ["关于郑州的记忆", "你离开了南京", "梵高先生"] },
+      { name: "宋冬野", songs: ["董小姐", "安和桥", "莉莉安", "斑马斑马"] },
+    ]
+  },
+  {
+    id: 11, emoji: "🌃", name: "粤语深情人", accentColor: "#EF4444",
+    tagline: "粤语流行港乐经典 · 东方浪漫与哀愁",
+    vector: [0,0,0,1],
+    description: "粤语是你情感的容器，那些经典旋律承载着港岛最深沉的浪漫与哀愁。你听的不只是歌，是一个时代的温度，和那个时代里人们的深情。",
+    artists: [
+      { name: "陈奕迅", songs: ["富士山下", "十年", "陀飞轮", "最佳损友"] },
+      { name: "张国荣", songs: ["Monica", "倩女幽魂", "当年情", "沉默是金"] },
+      { name: "王菲", songs: ["红豆", "容易受伤的女人", "人间", "夜会"] },
+      { name: "张学友", songs: ["吻别", "一路上有你", "情书", "每天爱你多一些"] },
+    ]
+  },
+  {
+    id: 12, emoji: "☕", name: "台系文艺青", accentColor: "#10B981",
+    tagline: "台湾独立文艺流行 · 咖啡馆里的细腻",
+    vector: [0,1,0,1],
+    description: "你是文青咖啡馆里那个安静听歌的人，台湾的独立音乐给了你最懂你的那种细腻。你欣赏生活里那些不起眼的美，音乐帮你把它们定格。",
+    artists: [
+      { name: "苏打绿", songs: ["小情歌", "无与伦比的美丽", "你在烦恼什么", "Summer Soul"] },
+      { name: "魏如萱", songs: ["你啊你啊", "残酷月光", "Ugly", "亲爱的路人"] },
+      { name: "五月天", songs: ["倔强", "任意门", "你不是真正的快乐", "知足"] },
+      { name: "陈绮贞", songs: ["旅行的意义", "鱼", "时间的歌", "太阳"] },
+    ]
+  },
+  {
+    id: 13, emoji: "📱", name: "抖音冲浪手", accentColor: "#06B6D4",
+    tagline: "短视频神曲网络流行 · 洗脑上头",
+    vector: [1,0,1,1],
+    description: "你在每一个刷屏瞬间里找到共鸣，那些洗脑旋律背后藏着意想不到的情绪触点。你不在乎小众还是大众，好听就是好听。",
+    artists: [
+      { name: "闻人听觉", songs: ["白羊", "芒种", "花田错", "探窗"] },
+      { name: "音阙诗听", songs: ["踏山河", "红昭愿", "执契静劳", "年轮"] },
+      { name: "河图", songs: ["不见长安", "牵丝戏", "倾尽天下", "山水令"] },
+      { name: "隔壁老樊", songs: ["老男孩", "我曾", "说散就散"] },
+    ]
+  },
+  {
+    id: 14, emoji: "🔥", name: "摇滚烈焰人", accentColor: "#DC2626",
+    tagline: "华语摇滚热血乐队 · 港摇经典",
+    vector: [1,0,0,0],
+    description: "失真吉他和嘶吼是你的表达方式，摇滚不只是音乐，是你对世界的态度。你需要那种能把情绪彻底燃烧掉的声音，安静的东西留给别人。",
+    artists: [
+      { name: "Beyond", songs: ["光辉岁月", "海阔天空", "真的爱你", "不再犹豫"] },
+      { name: "痛仰乐队", songs: ["公路之歌", "没有理想的人不伤心", "再见杰克"] },
+      { name: "二手玫瑰", songs: ["十面埋伏", "嫂子颂", "允许部分艺术家先富起来"] },
+      { name: "新裤子乐队", songs: ["你要跳舞吗", "生活因你而火热", "没有理想的人不伤心"] },
+    ]
+  },
+  {
+    id: 15, emoji: "🌀", name: "异次元实验者", accentColor: "#7C3AED",
+    tagline: "实验流行先锋声音 · 音乐的另一个维度",
+    vector: [0,1,1,0],
+    description: "你活在音乐的另一个维度，那里没有边界，只有声音本身无限延展的可能。你享受被音乐挑战、颠覆甚至吓到的感觉，因为那才说明它是真的。",
+    artists: [
+      { name: "华晨宇", songs: ["癫", "齐天", "玛尼玛尼哄", "降临"] },
+      { name: "Björk", songs: ["Jóga", "Human Behaviour", "All is Full of Love"] },
+      { name: "坂本龙一", songs: ["Merry Christmas Mr. Lawrence", "Aqua", "Thousand Knives"] },
+      { name: "FKA Twigs", songs: ["cellophane", "Two Weeks", "Sad Day"] },
+    ]
+  },
+  {
+    id: 16, emoji: "🏙️", name: "华语嘻哈地下客", accentColor: "#D97706",
+    tagline: "华语说唱 Trap · 街头文化与地下火焰",
+    vector: [1,1,0,1],
+    description: "你用中文说唱讲自己的故事，地下的火焰比主流的聚光灯更真实更烫。你欣赏那些不妥协的人，那些把方言和节拍混在一起的野生创造力。",
+    artists: [
+      { name: "GAI 周延", songs: ["川流不息", "天干物燥", "落叶", "两只老虎"] },
+      { name: "艾福杰尼", songs: ["阿伦大叔", "弄潮儿", "我是云南的"] },
+      { name: "欧阳靖", songs: ["反击", "炎黄", "Black Gold"] },
+      { name: "周汤豪 Nickthereal", songs: ["NǏMEN", "一半", "Downtown", "迷"] },
+    ]
+  },
+];
+
+// ─── STATE ───────────────────────────────────────────────────────────────────
+
+let currentPage = 'landing';
+let currentQ = 0;
+let answers = new Array(20).fill(null);
+let autoAdvanceTimer = null;
+
+// ─── PAGE TRANSITIONS ────────────────────────────────────────────────────────
+
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => {
+    p.classList.remove('active', 'visible');
+  });
+  const page = document.getElementById('page-' + id);
+  page.classList.add('active');
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => page.classList.add('visible'));
+  });
+  currentPage = id;
+}
+
+// ─── QUIZ ────────────────────────────────────────────────────────────────────
+
+function startQuiz() {
+  currentQ = 0;
+  answers = new Array(20).fill(null);
+  renderQuestion();
+  showPage('quiz');
+}
+
+function renderQuestion(direction = 0) {
+  const card = document.getElementById('question-card');
+  const q = QUESTIONS[currentQ];
+
+  // Fade out
+  if (direction !== 0) {
+    card.classList.add(direction > 0 ? 'fade-out' : 'fade-in');
+  }
+
+  const doRender = () => {
+    // Progress
+    document.getElementById('q-label').textContent = `第 ${currentQ + 1} 题`;
+    document.getElementById('q-num').textContent = `Q${currentQ + 1}`;
+    document.getElementById('q-text').textContent = q.text;
+    document.getElementById('progress-fill').style.width = `${((currentQ + 1) / 20) * 100}%`;
+
+    // Likert buttons
+    const wrap = document.getElementById('likert-wrap');
+    wrap.innerHTML = '';
+    LIKERT.forEach((opt, idx) => {
+      const btn = document.createElement('button');
+      btn.className = 'likert-btn' + (answers[currentQ] === idx ? ' selected' : '');
+      btn.innerHTML = `<span class="likert-emoji">${opt.emoji}</span><span class="likert-label">${opt.label}</span>`;
+      btn.onclick = () => selectAnswer(idx);
+      wrap.appendChild(btn);
+    });
+
+    // Nav buttons
+    document.getElementById('btn-prev').disabled = currentQ === 0;
+    document.getElementById('btn-next').textContent = currentQ === 19 ? '查看结果 ✨' : '下一题 →';
+
+    // Fade in
+    card.classList.remove('fade-out', 'fade-in');
+    void card.offsetWidth; // reflow
+    card.style.opacity = '0';
+    card.style.transform = direction < 0 ? 'translateX(20px)' : direction > 0 ? 'translateX(-20px)' : 'none';
+    requestAnimationFrame(() => {
+      card.style.transition = 'opacity .25s, transform .25s';
+      card.style.opacity = '1';
+      card.style.transform = 'none';
+    });
+  };
+
+  if (direction !== 0) {
+    setTimeout(doRender, 200);
+  } else {
+    doRender();
+  }
+}
+
+function selectAnswer(idx) {
+  if (autoAdvanceTimer) clearTimeout(autoAdvanceTimer);
+  answers[currentQ] = idx;
+
+  // Update button states
+  document.querySelectorAll('.likert-btn').forEach((btn, i) => {
+    btn.classList.toggle('selected', i === idx);
+  });
+
+  // Auto-advance
+  autoAdvanceTimer = setTimeout(() => {
+    if (currentQ < 19) {
+      currentQ++;
+      renderQuestion(1);
+    } else {
+      showResult();
+    }
+  }, 300);
+}
+
+function navigate(dir) {
+  if (autoAdvanceTimer) clearTimeout(autoAdvanceTimer);
+  if (dir === -1 && currentQ > 0) {
+    currentQ--;
+    renderQuestion(-1);
+  } else if (dir === 1) {
+    if (currentQ < 19) {
+      currentQ++;
+      renderQuestion(1);
+    } else {
+      showResult();
+    }
+  }
+}
+
+// ─── SCORING ─────────────────────────────────────────────────────────────────
+
+function computeScores() {
+  const dims = { RM: [], IE: [], SA: [], VT: [] };
+
+  QUESTIONS.forEach((q, i) => {
+    const rawAnswer = answers[i] !== null ? answers[i] : 2; // default: neutral (index 2 = value 3)
+    const value = LIKERT[rawAnswer].value; // 5,4,3,2,1
+    // Points toward first letter: normal=value, reversed=6-value
+    const pts = q.reversed ? (6 - value) : value;
+    dims[q.dim].push(pts);
+  });
+
+  // Determine dimension letter and normalized score (0-1 toward first letter)
+  const result = {};
+  for (const [dim, pts] of Object.entries(dims)) {
+    const sum = pts.reduce((a, b) => a + b, 0);
+    const mid = pts.length * 3;
+    const max = pts.length * 5;
+    const min = pts.length * 1;
+    result[dim] = {
+      score: sum,
+      normalized: (sum - min) / (max - min), // 0=second letter, 1=first letter
+      letter: sum > mid ? 0 : 1 // 0=first letter (R/I/S/V), 1=second (M/E/A/T)
+    };
+  }
+  return result;
+}
+
+function findPersonality(dimScores) {
+  // User vector: [R,I,S,V] each 0 or 1
+  const userVec = [
+    dimScores.RM.letter === 0 ? 1 : 0,
+    dimScores.IE.letter === 0 ? 1 : 0,
+    dimScores.SA.letter === 0 ? 1 : 0,
+    dimScores.VT.letter === 0 ? 1 : 0,
+  ];
+
+  const distances = PERSONALITIES.map(p => {
+    const dist = Math.sqrt(
+      p.vector.reduce((sum, v, i) => sum + Math.pow(v - userVec[i], 2), 0)
+    );
+    return { personality: p, distance: dist };
+  });
+
+  distances.sort((a, b) => a.distance - b.distance);
+  return distances;
+}
+
+// ─── RESULT ──────────────────────────────────────────────────────────────────
+
+function showResult() {
+  const dimScores = computeScores();
+  const ranked = findPersonality(dimScores);
+  const top = ranked[0].personality;
+  const secondary = ranked.slice(1, 3).map(r => r.personality);
+
+  // Set CSS var for accent color
+  document.documentElement.style.setProperty('--personality-color', top.accentColor);
+
+  const ri = document.getElementById('result-inner');
+
+  // Dimension bars data
+  const dimData = [
+    { label1: "节奏 R", label2: "旋律 M", pct: dimScores.RM.normalized },
+    { label1: "内省 I", label2: "外放 E", pct: dimScores.IE.normalized },
+    { label1: "电子 S", label2: "原声 A", pct: dimScores.SA.normalized },
+    { label1: "人声 V", label2: "器乐 T", pct: dimScores.VT.normalized },
+  ];
+
+  ri.innerHTML = `
+    <div class="result-hero">
+      <span class="result-emoji">${top.emoji}</span>
+      <div class="result-name">${top.name}</div>
+      <div class="result-tagline">${top.tagline}</div>
+      <p class="result-desc">${top.description}</p>
+    </div>
+
+    <div>
+      <div class="section-title" style="margin-bottom:12px">你的音乐维度</div>
+      <div class="dims">
+        ${dimData.map(d => `
+          <div class="dim-bar-wrap">
+            <div class="dim-labels"><span>${d.label1}</span><span>${d.label2}</span></div>
+            <div class="dim-bar-bg">
+              <div class="dim-bar-fill" style="width:${Math.round(d.pct * 100)}%"></div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+
+    <div>
+      <div class="section-title" style="margin-bottom:12px">你的音乐基因</div>
+      <div class="artists-grid">
+        ${top.artists.map(a => `
+          <div class="artist-card">
+            <div class="artist-name">${a.name}</div>
+            <div class="artist-songs">
+              ${a.songs.map(s => `<div class="artist-song">♪ ${s}</div>`).join('')}
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+
+    <div>
+      <div class="section-title" style="margin-bottom:12px">你也可能是…</div>
+      <div class="secondary-matches">
+        ${secondary.map(p => `
+          <div class="secondary-chip">
+            <span class="chip-emoji">${p.emoji}</span>
+            <div>
+              <div class="chip-name">${p.name}</div>
+              <div class="chip-tag">${p.tagline.split(' · ')[0]}</div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+
+    <div class="result-actions">
+      <button class="btn-share" onclick="copyResult('${top.emoji}', '${top.name}', '${top.tagline}')">📋 分享我的结果</button>
+      <button class="btn-restart" onclick="startQuiz()">🔄 重新测试</button>
+    </div>
+  `;
+
+  showPage('result');
+  launchConfetti(top.accentColor);
+
+  // Animate bars after render
+  setTimeout(() => {
+    document.querySelectorAll('.dim-bar-fill').forEach((bar, i) => {
+      bar.style.width = Math.round(dimData[i].pct * 100) + '%';
+    });
+  }, 100);
+}
+
+function copyResult(emoji, name, tagline) {
+  const text = `我是${emoji}${name}！\n${tagline}\n#音乐16人格测试\n\n快来测测你是哪种音乐人格 🎵`;
+  navigator.clipboard.writeText(text).then(() => {
+    const toast = document.getElementById('toast');
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 2500);
+  });
+}
+
+// ─── CONFETTI ────────────────────────────────────────────────────────────────
+
+function launchConfetti(color) {
+  const canvas = document.getElementById('confetti-canvas');
+  canvas.style.display = 'block';
+  const ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  const particles = [];
+  const colors = [color, '#ffffff', '#c084fc', '#818cf8', '#f9a8d4'];
+
+  for (let i = 0; i < 120; i++) {
+    particles.push({
+      x: Math.random() * canvas.width,
+      y: -10 - Math.random() * 200,
+      vx: (Math.random() - .5) * 4,
+      vy: 2 + Math.random() * 4,
+      size: 4 + Math.random() * 7,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      rot: Math.random() * Math.PI * 2,
+      rotV: (Math.random() - .5) * .2,
+      shape: Math.random() > .5 ? 'rect' : 'circle',
+      alpha: 1,
+    });
+  }
+
+  let frame = 0;
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    particles.forEach(p => {
+      p.x += p.vx;
+      p.y += p.vy;
+      p.vy += .08;
+      p.rot += p.rotV;
+      if (frame > 80) p.alpha -= .015;
+
+      ctx.save();
+      ctx.globalAlpha = Math.max(0, p.alpha);
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rot);
+      ctx.fillStyle = p.color;
+      if (p.shape === 'rect') {
+        ctx.fillRect(-p.size / 2, -p.size / 4, p.size, p.size / 2);
+      } else {
+        ctx.beginPath();
+        ctx.arc(0, 0, p.size / 2, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.restore();
+    });
+    frame++;
+    if (frame < 160) requestAnimationFrame(draw);
+    else {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      canvas.style.display = 'none';
+    }
+  }
+  draw();
+}
+
+// ─── INIT ────────────────────────────────────────────────────────────────────
+
+showPage('landing');
+</script>
+</body>
+</html>
