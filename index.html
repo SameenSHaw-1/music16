@@ -154,15 +154,15 @@ html, body { min-height: 100%; background: var(--bg); color: var(--text); font-f
 .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.75); z-index:500; display:none; align-items:center; justify-content:center; padding:20px; }
 .modal-overlay.active { display:flex; }
 .share-modal { background:rgba(255,245,220,.92); backdrop-filter:blur(24px); border:1px solid rgba(255,255,255,.6); border-radius:24px; padding:24px; max-width:400px; width:100%; display:flex; flex-direction:column; gap:16px; }
-.share-card { border-radius:16px; overflow:hidden; background: linear-gradient(135deg, #FAEABB 0%, #F0956A 50%, #4A7FB5 100%); padding: 28px 24px; display: flex; flex-direction: column; gap: 16px; position: relative; }
-.share-card::before { content:''; position:absolute; inset:0; background: radial-gradient(ellipse at 50% 0%, var(--personality-color) 0%, transparent 60%); opacity:.2; }
-.share-card-content { position: relative; z-index:1; }
-.share-card-emoji { font-size: 48px; display:block; margin-bottom:8px; }
-.share-card-name { font-size: 22px; font-weight: 900; color: #fff; margin-bottom: 4px; }
-.share-card-tag { font-size: 12px; color: rgba(255,255,255,.6); margin-bottom: 12px; }
-.share-card-desc { font-size: 12px; color: rgba(255,255,255,.75); line-height: 1.6; margin-bottom: 16px; }
-.share-card-url { font-size: 11px; color: rgba(255,255,255,.4); }
-.share-card-qr { position: absolute; right: 20px; bottom: 20px; z-index:1; background:#fff; padding:4px; border-radius:8px; }
+.share-card { border-radius:16px; overflow:hidden; background: linear-gradient(135deg, #FAEABB 0%, #F0956A 50%, #4A7FB5 100%); padding: 24px 20px; display: flex; flex-direction: row; align-items: flex-end; gap: 16px; position: relative; min-height: 160px; }
+.share-card::before { content:''; position:absolute; inset:0; background: radial-gradient(ellipse at 50% 0%, var(--personality-color) 0%, transparent 60%); opacity:.2; pointer-events:none; }
+.share-card-content { position: relative; z-index:1; flex:1; min-width:0; }
+.share-card-emoji { font-size: 36px; display:block; margin-bottom:6px; }
+.share-card-name { font-size: 20px; font-weight: 900; color: #fff; margin-bottom: 3px; }
+.share-card-tag { font-size: 11px; color: rgba(255,255,255,.65); margin-bottom: 10px; }
+.share-card-desc { font-size: 11px; color: rgba(255,255,255,.8); line-height: 1.55; margin-bottom: 12px; }
+.share-card-url { font-size: 10px; color: rgba(255,255,255,.45); }
+.share-card-qr { position: relative; z-index:1; flex-shrink:0; background:#fff; padding:5px; border-radius:8px; align-self:center; }
 .share-modal-btns { display: flex; gap: 10px; }
 .btn-download { flex:1; padding:12px; border-radius:50px; border:none; background:rgba(200,100,30,.85); color:#fff; font-size:13px; font-weight:700; font-family:inherit; cursor:pointer; }
 .btn-close-modal { flex:1; padding:12px; border-radius:50px; border:1.5px solid rgba(60,25,0,.2); background:transparent; color:rgba(50,20,0,.65); font-size:13px; font-family:inherit; cursor:pointer; }
@@ -315,163 +315,163 @@ function getMascotSVG(id, color) {
 const PERSONALITIES = [
   { id:1, emoji:"🌟", name:"霓虹造梦机", accentColor:"#FF6B9D", vector:[1,0,1,1],
     tagline:"欧美主流流行 · 叙事型情绪大片",
-    description:"你是流行世界的造梦者，每首歌都是一部小电影，旋律即是情绪，情绪即是你自己。你对音乐的热情是直接的、真诚的，你从不觉得喜欢流行有什么不好意思。",
+    description:"流行歌你从来不觉得有什么好藏着掖着的。Taylor Swift唱失恋你会哭，Ariana Grande唱爽你就跟着爽，不需要什么理由。你记得每首歌是在什么时候第一次听到的。",
     neteaseId:"1969538016", neteaseSong:"Love Story - Taylor Swift",
     artists:[
-      { name:"Taylor Swift", emoji:"🎤", songs:["Love Story","Anti-Hero","Shake It Off","All Too Well"], coverEmoji:"🌹" },
-      { name:"Katy Perry", emoji:"🎤", songs:["Roar","Teenage Dream","Firework"], coverEmoji:"🎆" },
-      { name:"Ariana Grande", emoji:"🎤", songs:["thank u, next","7 rings","positions"], coverEmoji:"🍩" },
-      { name:"Billie Eilish", emoji:"🎤", songs:["bad guy","Happier Than Ever","Ocean Eyes"], coverEmoji:"🌿" },
+      { name:"Taylor Swift", emoji:"🎤", songs:["Love Story","Anti-Hero","Shake It Off","All Too Well"], coverEmoji:"🌹", img:"https://i.scdn.co/image/ab6761610000e5eb5a00969a4698c3132a15fbb0" },
+      { name:"Katy Perry", emoji:"🎤", songs:["Roar","Teenage Dream","Firework","Dark Horse"], coverEmoji:"🎆", img:"https://i.scdn.co/image/ab6761610000e5eb50bcf58dbc75d4a63f36e7cd" },
+      { name:"Ariana Grande", emoji:"🎤", songs:["thank u, next","7 rings","positions","God is a woman"], coverEmoji:"🍩", img:"https://i.scdn.co/image/ab6761610000e5eb40b88b41573bf9f7a878bb13" },
+      { name:"Billie Eilish", emoji:"🎤", songs:["bad guy","Happier Than Ever","Ocean Eyes","LUNCH"], coverEmoji:"🌿", img:"https://i.scdn.co/image/ab6761610000e5eb3e1bc0f6de9996baab8abe11" },
     ]},
   { id:2, emoji:"🪩", name:"派对变色龙", accentColor:"#A855F7", vector:[1,0,1,0],
     tagline:"欧美电音流行 · 舞台张力与感官冲击",
-    description:"你在音乐里寻找肾上腺素，舞台感和电子脉冲让你感到最真实的自己。音乐对你而言是一种变身，你可以在不同的节拍里成为不同的人。",
+    description:"好的音乐对你来说有物理反应，脑袋跟着抖、脚跟着踩，控制不住。Lady Gaga的舞台你能盯两小时不腻，电子音一出来身体自动切换到另一个模式。",
     neteaseId:"5103316", neteaseSong:"Bad Romance - Lady Gaga",
     artists:[
-      { name:"Lady Gaga", emoji:"🎭", songs:["Bad Romance","Poker Face","Shallow","Alejandro"], coverEmoji:"🖤" },
-      { name:"Dua Lipa", emoji:"💃", songs:["Levitating","Don't Start Now","Physical"], coverEmoji:"🪩" },
-      { name:"The Weeknd", emoji:"🌙", songs:["Blinding Lights","Starboy","Save Your Tears"], coverEmoji:"🌃" },
-      { name:"Daft Punk", emoji:"🤖", songs:["Get Lucky","One More Time","Around the World"], coverEmoji:"🔮" },
+      { name:"Lady Gaga", emoji:"🎭", songs:["Bad Romance","Poker Face","Shallow","Alejandro"], coverEmoji:"🖤", img:"https://i.scdn.co/image/ab6761610000e5eb4db9c33f928f4fa44f1b7ea7" },
+      { name:"Dua Lipa", emoji:"💃", songs:["Levitating","Don't Start Now","Physical","Houdini"], coverEmoji:"🪩", img:"https://i.scdn.co/image/ab6761610000e5eb74f601a3bdc1b2d1c4bd0e23" },
+      { name:"The Weeknd", emoji:"🌙", songs:["Blinding Lights","Starboy","Save Your Tears","Die For You"], coverEmoji:"🌃", img:"https://i.scdn.co/image/ab6761610000e5eb214f3cf1cbe7139c1e26ffbb" },
+      { name:"Daft Punk", emoji:"🤖", songs:["Get Lucky","One More Time","Harder Better Faster","Around the World"], coverEmoji:"🔮", img:"https://i.scdn.co/image/ab6761610000e5eb0f95894c45dd08c32e0c4e3e" },
     ]},
   { id:3, emoji:"🌧️", name:"小镇忧郁客", accentColor:"#6366F1", vector:[0,1,1,0],
     tagline:"欧美独立流行 · 迷幻内省青春疼痛",
-    description:"你住在自己的内心小镇里，音乐是那里唯一的街灯，照亮所有说不清的情绪。你欣赏那些没有被过度打磨的声音，因为粗粝才是真实。",
+    description:"你听歌不是为了开心，是为了被理解。那种'这首歌怎么写的就是我'的感觉，比任何治愈都管用。Conan Gray说的那些憋在心里说不出口的话，你全都懂。",
     neteaseId:"1474570365", neteaseSong:"Heather - Conan Gray",
     artists:[
-      { name:"Conan Gray", emoji:"🌧", songs:["Heather","Maniac","People Watching"], coverEmoji:"💜" },
-      { name:"Lorde", emoji:"👑", songs:["Royals","Green Light","Tennis Court"], coverEmoji:"🌿" },
-      { name:"Phoebe Bridgers", emoji:"🦴", songs:["Motion Sickness","Garden Song"], coverEmoji:"🌙" },
-      { name:"Troye Sivan", emoji:"🎨", songs:["Youth","BLOOM","Easy"], coverEmoji:"🌸" },
+      { name:"Conan Gray", emoji:"🌧", songs:["Heather","Maniac","People Watching","Found Heaven"], coverEmoji:"💜", img:"https://i.scdn.co/image/ab6761610000e5eb12e94bfdd0a89b8e438d1f93" },
+      { name:"Lorde", emoji:"👑", songs:["Royals","Green Light","Tennis Court","Solar Power"], coverEmoji:"🌿", img:"https://i.scdn.co/image/ab6761610000e5ebd07f3e2a71cf6e9c29882e82" },
+      { name:"Phoebe Bridgers", emoji:"🦴", songs:["Motion Sickness","Garden Song","Savior Complex","Funeral"], coverEmoji:"🌙", img:"https://i.scdn.co/image/ab6761610000e5eb67c69a2ff4c9f4c3e1059d35" },
+      { name:"Troye Sivan", emoji:"🎨", songs:["Youth","BLOOM","Easy","Rush"], coverEmoji:"🌸", img:"https://i.scdn.co/image/ab6761610000e5eb0ad51f6800fae9f2a90b9fc4" },
     ]},
   { id:4, emoji:"🎤", name:"街头说唱客", accentColor:"#F59E0B", vector:[1,0,0,1],
     tagline:"欧美说唱 Hip-Hop · 地下到主流",
-    description:"节奏是你的语言，歌词是你的武器，街头的真实比任何旋律都更震撼你的内心。你欣赏那些敢于直说的人，那些把生活写进押韵里的勇气。",
+    description:"你听歌是因为那些话说到你心里了，不是因为好听。Kendrick能在一首歌里把你骂醒，Drake能让你无缘无故就想起某个人，这种力道是其他音乐给不了的。",
     neteaseId:"469104548", neteaseSong:"HUMBLE. - Kendrick Lamar",
     artists:[
-      { name:"Kendrick Lamar", emoji:"🏆", songs:["HUMBLE.","Money Trees","Not Like Us"], coverEmoji:"🌆" },
-      { name:"Drake", emoji:"🦉", songs:["God's Plan","Hotline Bling","One Dance"], coverEmoji:"🦋" },
-      { name:"Eminem", emoji:"⚡", songs:["Lose Yourself","Stan","Without Me"], coverEmoji:"🎯" },
-      { name:"Post Malone", emoji:"🌹", songs:["Circles","Sunflower","rockstar"], coverEmoji:"🍀" },
+      { name:"Kendrick Lamar", emoji:"🏆", songs:["HUMBLE.","Money Trees","Not Like Us","Alright"], coverEmoji:"🌆", img:"https://i.scdn.co/image/ab6761610000e5eb437b6724be7d2179be7d83cf" },
+      { name:"Drake", emoji:"🦉", songs:["God's Plan","Hotline Bling","One Dance","Rich Flex"], coverEmoji:"🦋", img:"https://i.scdn.co/image/ab6761610000e5eb4293385d324db8558179afd9" },
+      { name:"Eminem", emoji:"⚡", songs:["Lose Yourself","Stan","Without Me","Rap God"], coverEmoji:"🎯", img:"https://i.scdn.co/image/ab6761610000e5eb57b7ab845e2e59e93b9f1b78" },
+      { name:"Post Malone", emoji:"🌹", songs:["Circles","Sunflower","rockstar","I Had Some Help"], coverEmoji:"🍀", img:"https://i.scdn.co/image/ab6761610000e5eb2b1c7b7c24a12fd7f9b0e5ae" },
     ]},
   { id:5, emoji:"🌦️", name:"英伦迷失者", accentColor:"#64748B", vector:[0,1,0,0],
     tagline:"英式另类摇滚 · 颓废诗意存在主义",
-    description:"你迷失在英伦的阴雨里，那些颓废而诗意的吉他声才是你的母语。你不追求热闹，你在音乐里寻找某种说不清楚但一听就知道的东西。",
+    description:"你不是在听音乐，你是在找一种感觉，说不清楚是什么，但Radiohead一放出来你就知道那就是了。你对太过整齐、太过阳光的东西天然不信任。",
     neteaseId:"4264434", neteaseSong:"Creep - Radiohead",
     artists:[
-      { name:"Radiohead", emoji:"📻", songs:["Creep","Karma Police","Fake Plastic Trees"], coverEmoji:"🌫" },
-      { name:"Oasis", emoji:"🌻", songs:["Wonderwall","Champagne Supernova"], coverEmoji:"🎸" },
-      { name:"The Smiths", emoji:"🌹", songs:["There Is a Light","How Soon Is Now?"], coverEmoji:"🥀" },
-      { name:"Arctic Monkeys", emoji:"🐒", songs:["Do I Wanna Know?","R U Mine?","505"], coverEmoji:"🎸" },
+      { name:"Radiohead", emoji:"📻", songs:["Creep","Karma Police","Fake Plastic Trees","No Surprises"], coverEmoji:"🌫", img:"https://i.scdn.co/image/ab6761610000e5eb805c2cdfbe21a7c0ea5f4c39" },
+      { name:"Oasis", emoji:"🌻", songs:["Wonderwall","Champagne Supernova","Don't Look Back in Anger","Live Forever"], coverEmoji:"🎸", img:"https://i.scdn.co/image/ab6761610000e5ebad94ae95a27d1a72db2dae45" },
+      { name:"The Smiths", emoji:"🌹", songs:["There Is a Light","How Soon Is Now?","This Charming Man","Please Please Please"], coverEmoji:"🥀", img:"https://i.scdn.co/image/ab6761610000e5ebe76b7d01b6a68c3d9a67e9d1" },
+      { name:"Arctic Monkeys", emoji:"🐒", songs:["Do I Wanna Know?","R U Mine?","505","Why'd You Only Call Me When You're High?"], coverEmoji:"🎸", img:"https://i.scdn.co/image/ab6761610000e5eb7da39dea0a72f581535fb11f" },
     ]},
   { id:6, emoji:"🎹", name:"钢琴冥想者", accentColor:"#8ECAE6", vector:[0,1,0,0],
     tagline:"新古典纯器乐 · 无声电影的配乐",
-    description:"你不需要歌词，音符本身就是完整的语言，每段旋律都是一场无声的电影。你在纯粹的声音里找到了语言无法抵达的那个角落。",
+    description:"你不需要有人唱，音符本身就够了。久石让的旋律放出来，脑子里自动出画面，不知道是什么画面，但就是有。这种东西你很难跟别人解释。",
     neteaseId:"26237342", neteaseSong:"River Flows in You - Yiruma",
     artists:[
-      { name:"久石让", emoji:"🎋", songs:["天空之城","千与千寻","夏","海的那边"], coverEmoji:"🌸" },
-      { name:"Ludovico Einaudi", emoji:"🌊", songs:["Experience","Nuvole Bianche","Una Mattina"], coverEmoji:"🏔" },
-      { name:"Yiruma", emoji:"🌙", songs:["River Flows in You","Kiss the Rain","Spring Time"], coverEmoji:"💙" },
-      { name:"李云迪", emoji:"🎼", songs:["月光奏鸣曲","肖邦夜曲","英雄波兰舞曲"], coverEmoji:"🌟" },
+      { name:"久石让", emoji:"🎋", songs:["天空之城","千与千寻主题曲","Summer","The Promise"], coverEmoji:"🌸", img:"https://i.scdn.co/image/ab6761610000e5eb60b9bdf2d9c6accdae54bc62" },
+      { name:"Ludovico Einaudi", emoji:"🌊", songs:["Experience","Nuvole Bianche","Una Mattina","I giorni"], coverEmoji:"🏔", img:"https://i.scdn.co/image/ab6761610000e5eb6af9e491d3dfd1e7a3eb33ae" },
+      { name:"Yiruma", emoji:"🌙", songs:["River Flows in You","Kiss the Rain","Spring Time","May Be"], coverEmoji:"💙", img:"https://i.scdn.co/image/ab6761610000e5ebda9b88e1c2e7cbcc6e9e8bf2" },
+      { name:"坂本龙一", emoji:"🎹", songs:["Merry Christmas Mr. Lawrence","Energy Flow","Thousand Knives","async"], coverEmoji:"🌊", img:"https://i.scdn.co/image/ab6761610000e5eb0f54ef79ba52c00e1dfad55e" },
     ]},
   { id:7, emoji:"✨", name:"K-POP星云", accentColor:"#EC4899", vector:[1,0,1,1],
     tagline:"韩流全谱系 · 偶像工业与地下灵魂",
-    description:"你活在精心打造的星光里，每个音符都经过计算，每次感动却都真实无比。K-POP给了你一种独特的体验：在完美的工业产品里找到真实的情感共鸣。",
+    description:"你知道K-POP是工业流水线出来的，但就是能被打动，这不矛盾。BTS的Spring Day能让你看一遍哭一遍，BLACKPINK登台你也能亢奋，两种感觉你都要。",
     neteaseId:"1853704207", neteaseSong:"Spring Day - BTS",
     artists:[
-      { name:"BTS", emoji:"💜", songs:["Spring Day","Dynamite","Boy With Luv","DNA"], coverEmoji:"🌌" },
-      { name:"权志龙 G-Dragon", emoji:"👑", songs:["Crooked","Fantastic Baby","ONE OF A KIND"], coverEmoji:"💎" },
-      { name:"BLACKPINK", emoji:"🖤", songs:["DDU-DU DDU-DU","Kill This Love","How You Like That"], coverEmoji:"🌹" },
-      { name:"IU 李知恩", emoji:"🌙", songs:["Celebrity","LILAC","好日子","Palette"], coverEmoji:"🌸" },
+      { name:"BTS", emoji:"💜", songs:["Spring Day","Dynamite","Boy With Luv","DNA"], coverEmoji:"🌌", img:"https://i.scdn.co/image/ab6761610000e5eb7e7b04ab82fb1a3ab5a19b3f" },
+      { name:"G-Dragon", emoji:"👑", songs:["Crooked","Fantastic Baby","ONE OF A KIND","Untitled, 2014"], coverEmoji:"💎", img:"https://i.scdn.co/image/ab6761610000e5ebf2f3e1f9c58fa90c9e9e0e02" },
+      { name:"BLACKPINK", emoji:"🖤", songs:["DDU-DU DDU-DU","Kill This Love","How You Like That","Pink Venom"], coverEmoji:"🌹", img:"https://i.scdn.co/image/ab6761610000e5eb6e3fa0de6fdef0ece7ef0f40" },
+      { name:"IU", emoji:"🌙", songs:["Celebrity","LILAC","Blueming","Through the Night"], coverEmoji:"🌸", img:"https://i.scdn.co/image/ab6761610000e5eb006ff3c0136a71bfb9928100" },
     ]},
   { id:8, emoji:"💝", name:"芭乐深情人", accentColor:"#F97316", vector:[0,0,0,1],
     tagline:"华语芭乐励志爱情 · KTV 必点人格",
-    description:"你相信每段感情都值得一首歌，旋律里藏着勇气，歌词里住着所有爱过的人。你从不觉得动情是软弱，能被一首歌唱哭是一种天赋。",
+    description:"被一首歌唱哭不是什么丢人的事。莫文蔚的《盛夏的果实》你唱不完，梁静茹的《勇气》你还记得第一次听是在什么时候，这就够了。",
     neteaseId:"25638870", neteaseSong:"盛夏的果实 - 莫文蔚",
     artists:[
-      { name:"莫文蔚", emoji:"🌺", songs:["盛夏的果实","如果没有你","广岛之恋","他不爱我"], coverEmoji:"🍑" },
-      { name:"A-Lin 黄丽玲", emoji:"💫", songs:["给我一个理由忘记","哼幸福","你给的爱"], coverEmoji:"🌻" },
-      { name:"梁静茹", emoji:"🌹", songs:["勇气","宁夏","情歌","崇拜"], coverEmoji:"🍀" },
-      { name:"张惠妹", emoji:"🎭", songs:["我最亲爱的","原来你什么都不想要","记得","解脱"], coverEmoji:"🔥" },
+      { name:"莫文蔚", emoji:"🌺", songs:["盛夏的果实","如果没有你","广岛之恋","他不爱我"], coverEmoji:"🍑", img:"https://p2.music.126.net/4I7pTKRGV1p6G8fHjELv9A==/109951168498319552.jpg" },
+      { name:"梁静茹", emoji:"🌹", songs:["勇气","宁夏","情歌","崇拜"], coverEmoji:"🍀", img:"https://p2.music.126.net/6yCrXQXZHYEUJPLtFqUHEQ==/109951169082508436.jpg" },
+      { name:"张惠妹", emoji:"🎭", songs:["我最亲爱的","原来你什么都不想要","记得","解脱"], coverEmoji:"🔥", img:"https://p2.music.126.net/5qFdK2FKT-rg62vFuqnExQ==/109951168346566621.jpg" },
+      { name:"A-Lin 黄丽玲", emoji:"💫", songs:["给我一个理由忘记","哼幸福","你给的爱","幸福了 然后呢"], coverEmoji:"🌻", img:"https://p2.music.126.net/SJtpKSMdXP7kPHraJpkQiA==/109951169196440975.jpg" },
     ]},
   { id:9, emoji:"🌆", name:"城市灵魂客", accentColor:"#14B8A6", vector:[1,1,0,1],
     tagline:"华语 R&B 爵士流行 · 精致都市夜晚",
-    description:"都市的夜晚为你量身定制，灵魂乐的温度恰好填满城市里那一点孤独。你有品味，你知道什么叫真正的 groove，什么叫好的制作。",
+    description:"你听音乐是有品味要求的，那种糊弄人的编曲你一耳朵能听出来。陶喆的和弦你说不上来哪里好，但就是听着舒服，方大同唱的groove你觉得华语乐坛太缺了。",
     neteaseId:"150654", neteaseSong:"爱，很简单 - 陶喆",
     artists:[
-      { name:"陶喆", emoji:"🎷", songs:["爱很简单","普通朋友","就是这样","找自己"], coverEmoji:"🌃" },
-      { name:"方大同", emoji:"🎸", songs:["可以","爱爱爱","骑士","写给你的歌"], coverEmoji:"🌴" },
-      { name:"王力宏", emoji:"🎹", songs:["你不知道的事","落叶归根","Forever Love"], coverEmoji:"🍁" },
-      { name:"薛凯琪", emoji:"🎀", songs:["Mr. Right","娃娃","刚刚好","幸运儿"], coverEmoji:"🌈" },
+      { name:"陶喆", emoji:"🎷", songs:["爱很简单","普通朋友","就是这样","找自己"], coverEmoji:"🌃", img:"https://p2.music.126.net/FPULuGEQkL1KUEqtNYRqoA==/109951163069049763.jpg" },
+      { name:"方大同", emoji:"🎸", songs:["可以","爱爱爱","骑士","写给你的歌"], coverEmoji:"🌴", img:"https://p2.music.126.net/N55hmReMiVNgnFD-pDUzFQ==/18643526072235800.jpg" },
+      { name:"王力宏", emoji:"🎹", songs:["你不知道的事","落叶归根","Forever Love","唯一"], coverEmoji:"🍁", img:"https://p2.music.126.net/cOl5HzuZ5vEJLJj6YAvebg==/109951165897002609.jpg" },
+      { name:"薛凯琪", emoji:"🎀", songs:["Mr. Right","娃娃","刚刚好","幸运儿"], coverEmoji:"🌈", img:"https://p2.music.126.net/DQR7bJqmkb7aBzj1yQ0vqw==/109951163119427311.jpg" },
     ]},
   { id:10, emoji:"🎸", name:"公路流浪者", accentColor:"#84CC16", vector:[0,1,0,1],
     tagline:"华语民谣吉他 · 乡愁与流浪的诗",
-    description:"你背着吉他走在某条公路上，那些城市和离别的名字都变成了歌。民谣给了你一种其他音乐给不了的东西：真实的重量。",
+    description:"赵雷的《成都》你第一次听的时候可能没在成都待过，但就是觉得那个地方和那种感觉是真的。民谣里那点真实的重量是花多少钱都买不到的东西。",
     neteaseId:"436514312", neteaseSong:"成都 - 赵雷",
     artists:[
-      { name:"赵雷", emoji:"🎸", songs:["成都","理想三旬","我记得","南方姑娘"], coverEmoji:"🌿" },
-      { name:"马頔", emoji:"🏕", songs:["南山南","踏古","我曾","平静"], coverEmoji:"🍂" },
-      { name:"李志", emoji:"🚂", songs:["关于郑州的记忆","你离开了南京","梵高先生"], coverEmoji:"🌾" },
-      { name:"宋冬野", emoji:"🌻", songs:["董小姐","安和桥","莉莉安","斑马斑马"], coverEmoji:"🌊" },
+      { name:"赵雷", emoji:"🎸", songs:["成都","理想三旬","我记得","南方姑娘"], coverEmoji:"🌿", img:"https://p2.music.126.net/pI0lC_5RcRhHhCb7Z2yO_A==/109951164716975877.jpg" },
+      { name:"马頔", emoji:"🏕", songs:["南山南","踏古","我曾","平静"], coverEmoji:"🍂", img:"https://p2.music.126.net/uRoaGMDFP1ov9w50X1B5WA==/18511691961498220.jpg" },
+      { name:"宋冬野", emoji:"🌻", songs:["董小姐","安和桥","莉莉安","斑马斑马"], coverEmoji:"🌊", img:"https://p2.music.126.net/2JMnxR2dNhFDHa0ZqaSfXQ==/109951164500991994.jpg" },
+      { name:"李志", emoji:"🚂", songs:["关于郑州的记忆","你离开了南京","梵高先生","天空之城"], coverEmoji:"🌾", img:"https://p2.music.126.net/B-SHuAVBF9hBNDpT5rr8AA==/109951163100697481.jpg" },
     ]},
   { id:11, emoji:"🌃", name:"粤语深情人", accentColor:"#EF4444", vector:[0,0,0,1],
     tagline:"粤语流行港乐经典 · 东方浪漫与哀愁",
-    description:"粤语是你情感的容器，那些经典旋律承载着港岛最深沉的浪漫与哀愁。你听的不只是歌，是一个时代的温度，和那个时代里人们的深情。",
+    description:"陈奕迅唱《十年》你知道那不是在唱10年，张国荣的歌你可能一首都没完整听过，但每次听到副歌还是会停一下。港乐里有种说不清楚的东西，就是比别的音乐更有情。",
     neteaseId:"65766", neteaseSong:"富士山下 - 陈奕迅",
     artists:[
-      { name:"陈奕迅", emoji:"🎭", songs:["富士山下","十年","陀飞轮","最佳损友"], coverEmoji:"🌃" },
-      { name:"张国荣", emoji:"🌹", songs:["Monica","倩女幽魂","当年情","沉默是金"], coverEmoji:"💃" },
-      { name:"王菲", emoji:"🌙", songs:["红豆","容易受伤的女人","人间","夜会"], coverEmoji:"🌸" },
-      { name:"张学友", emoji:"🎤", songs:["吻别","一路上有你","情书","每天爱你多一些"], coverEmoji:"❤️" },
+      { name:"陈奕迅", emoji:"🎭", songs:["富士山下","十年","陀飞轮","最佳损友"], coverEmoji:"🌃", img:"https://p2.music.126.net/0AMKNmMi3vcSqsQV4MSFbg==/109951164889624488.jpg" },
+      { name:"张国荣", emoji:"🌹", songs:["Monica","倩女幽魂","当年情","沉默是金"], coverEmoji:"💃", img:"https://p2.music.126.net/oG3E-vGgVL4eKY59E8YZ1g==/109951165036416476.jpg" },
+      { name:"王菲", emoji:"🌙", songs:["红豆","容易受伤的女人","人间","夜会"], coverEmoji:"🌸", img:"https://p2.music.126.net/4PjEEX0LFJBrHCk4JoxE0Q==/109951165836418552.jpg" },
+      { name:"张学友", emoji:"🎤", songs:["吻别","一路上有你","情书","每天爱你多一些"], coverEmoji:"❤️", img:"https://p2.music.126.net/2SjKfkwKy1YDiGHV_oQBGA==/109951163092001665.jpg" },
     ]},
   { id:12, emoji:"☕", name:"台系文艺青", accentColor:"#10B981", vector:[0,1,0,1],
     tagline:"台湾独立文艺流行 · 咖啡馆里的细腻",
-    description:"你是文青咖啡馆里那个安静听歌的人，台湾的独立音乐给了你最懂你的那种细腻。你欣赏生活里那些不起眼的美，音乐帮你把它们定格。",
+    description:"苏打绿的歌你一首一首地听完过整张专辑，陈绮贞的歌词你会在某个瞬间突然想起来。台湾音乐里有一种认真劲儿，不是在做产品，是在做自己的东西。",
     neteaseId:"68450", neteaseSong:"小情歌 - 苏打绿",
     artists:[
-      { name:"苏打绿", emoji:"🌿", songs:["小情歌","无与伦比的美丽","你在烦恼什么","Summer Soul"], coverEmoji:"☀️" },
-      { name:"魏如萱", emoji:"🌸", songs:["你啊你啊","残酷月光","Ugly","亲爱的路人"], coverEmoji:"🌙" },
-      { name:"五月天", emoji:"🎸", songs:["倔强","任意门","你不是真正的快乐","知足"], coverEmoji:"🌟" },
-      { name:"陈绮贞", emoji:"✈️", songs:["旅行的意义","鱼","时间的歌","太阳"], coverEmoji:"🐟" },
+      { name:"苏打绿", emoji:"🌿", songs:["小情歌","无与伦比的美丽","你在烦恼什么","Summer Soul"], coverEmoji:"☀️", img:"https://p2.music.126.net/0K9XGsLLRLKxQJBkG8GJ4g==/109951164533277132.jpg" },
+      { name:"魏如萱", emoji:"🌸", songs:["你啊你啊","残酷月光","Ugly","亲爱的路人"], coverEmoji:"🌙", img:"https://p2.music.126.net/d5EWL9cI0MCb_vOBPBBkmg==/109951163070783500.jpg" },
+      { name:"五月天", emoji:"🎸", songs:["倔强","任意门","你不是真正的快乐","知足"], coverEmoji:"🌟", img:"https://p2.music.126.net/7BuqeqM1JNjr7lLBe-UvOg==/109951163266261076.jpg" },
+      { name:"陈绮贞", emoji:"✈️", songs:["旅行的意义","鱼","时间的歌","太阳"], coverEmoji:"🐟", img:"https://p2.music.126.net/sEHqbNxEmhQS3L5N-NKXKQ==/109951163079681444.jpg" },
     ]},
   { id:13, emoji:"📱", name:"抖音冲浪手", accentColor:"#06B6D4", vector:[1,0,1,1],
     tagline:"短视频神曲网络流行 · 洗脑上头",
-    description:"你在每一个刷屏瞬间里找到共鸣，那些洗脑旋律背后藏着意想不到的情绪触点。你不在乎小众还是大众，好听就是好听。",
+    description:"你对那些说'网络歌曲不算音乐'的人没什么兴趣争。《白羊》第一次刷到你还是在凌晨两点，就是突然一下听进去了，好不好听自己知道。",
     neteaseId:"568423378", neteaseSong:"白羊 - 鲁思睿",
     artists:[
-      { name:"闻人听觉", emoji:"🎵", songs:["白羊","芒种","花田错","探窗"], coverEmoji:"🌾" },
-      { name:"音阙诗听", emoji:"📜", songs:["踏山河","红昭愿","执契静劳","年轮"], coverEmoji:"🏔" },
-      { name:"河图", emoji:"🗺", songs:["不见长安","牵丝戏","倾尽天下","山水令"], coverEmoji:"🏯" },
-      { name:"隔壁老樊", emoji:"🎤", songs:["老男孩","我曾","说散就散"], coverEmoji:"🏡" },
+      { name:"闻人听觉", emoji:"🎵", songs:["白羊","芒种","花田错","探窗"], coverEmoji:"🌾", img:"https://p2.music.126.net/GhMzO8HMBkHI8AyHxH3lcQ==/109951165806826056.jpg" },
+      { name:"音阙诗听", emoji:"📜", songs:["踏山河","红昭愿","执契静劳","年轮"], coverEmoji:"🏔", img:"https://p2.music.126.net/rYMDHSMEPMxQEqajpMGRxg==/109951165699774498.jpg" },
+      { name:"河图", emoji:"🗺", songs:["不见长安","牵丝戏","倾尽天下","山水令"], coverEmoji:"🏯", img:"https://p2.music.126.net/Eg31u3hhXG6_yMqCiUJbXA==/109951165753754985.jpg" },
+      { name:"隔壁老樊", emoji:"🎤", songs:["老男孩","我曾","说散就散","有没有"], coverEmoji:"🏡", img:"https://p2.music.126.net/e-EMFm9Dl5v-S8a2YMNM3w==/109951166918694047.jpg" },
     ]},
   { id:14, emoji:"🔥", name:"摇滚烈焰人", accentColor:"#DC2626", vector:[1,0,0,0],
     tagline:"华语摇滚热血乐队 · 港摇经典",
-    description:"失真吉他和嘶吼是你的表达方式，摇滚不只是音乐，是你对世界的态度。你需要那种能把情绪彻底燃烧掉的声音，安静的东西留给别人。",
+    description:"Beyond的歌你唱K必点，不是装的，是那个旋律一出来就会有什么东西在胸口顶一下。痛仰在公路上开车听是什么感觉你懂，不需要解释。",
     neteaseId:"346576", neteaseSong:"光辉岁月 - Beyond",
     artists:[
-      { name:"Beyond", emoji:"🎸", songs:["光辉岁月","海阔天空","真的爱你","不再犹豫"], coverEmoji:"⚡" },
-      { name:"痛仰乐队", emoji:"🤘", songs:["公路之歌","没有理想的人不伤心","再见杰克"], coverEmoji:"🏍" },
-      { name:"二手玫瑰", emoji:"🌹", songs:["十面埋伏","嫂子颂","允许部分艺术家先富起来"], coverEmoji:"🎭" },
-      { name:"新裤子乐队", emoji:"🎉", songs:["你要跳舞吗","生活因你而火热","没有理想的人不伤心"], coverEmoji:"🕺" },
+      { name:"Beyond", emoji:"🎸", songs:["光辉岁月","海阔天空","真的爱你","不再犹豫"], coverEmoji:"🔥", img:"https://p2.music.126.net/u4SckE3FXkfVAI4eEjf_fQ==/109951163437773875.jpg" },
+      { name:"痛仰乐队", emoji:"🤘", songs:["公路之歌","没有理想的人不伤心","再见杰克","天下没有白吃的苦"], coverEmoji:"🏍", img:"https://p2.music.126.net/0fHHl7tkKo3PjMYNExNFcg==/109951165779869699.jpg" },
+      { name:"二手玫瑰", emoji:"🌹", songs:["十面埋伏","嫂子颂","允许部分艺术家先富起来","允许部分人先时髦起来"], coverEmoji:"🎭", img:"https://p2.music.126.net/lbMbqFjVgcOKcYW6P--OaQ==/109951163084126086.jpg" },
+      { name:"新裤子乐队", emoji:"🎉", songs:["你要跳舞吗","生活因你而火热","没有理想的人不伤心","哪里都是你"], coverEmoji:"🕺", img:"https://p2.music.126.net/S4ULK8V1JMK2lThb9OYSWA==/109951166830048658.jpg" },
     ]},
   { id:15, emoji:"🌀", name:"异次元实验者", accentColor:"#7C3AED", vector:[0,1,1,0],
     tagline:"实验流行先锋声音 · 音乐的另一个维度",
-    description:"你活在音乐的另一个维度，那里没有边界，只有声音本身无限延展的可能。你享受被音乐挑战、颠覆甚至吓到的感觉，因为那才说明它是真的。",
+    description:"华晨宇的《癫》你反复听了很多遍，每遍听到的东西不一样。你不是那种追求安慰的听众，你想要的是那种被音乐击中又搞不清楚为什么的感觉。",
     neteaseId:"1887860", neteaseSong:"癫 - 华晨宇",
     artists:[
-      { name:"华晨宇", emoji:"🌀", songs:["癫","齐天","玛尼玛尼哄","降临"], coverEmoji:"🌌" },
-      { name:"Björk", emoji:"🦢", songs:["Jóga","Human Behaviour","All is Full of Love"], coverEmoji:"❄️" },
-      { name:"坂本龙一", emoji:"🎹", songs:["Merry Christmas Mr. Lawrence","Aqua","Thousand Knives"], coverEmoji:"🌊" },
-      { name:"FKA Twigs", emoji:"🕸", songs:["cellophane","Two Weeks","Sad Day"], coverEmoji:"🌑" },
+      { name:"华晨宇", emoji:"🌀", songs:["癫","齐天","玛尼玛尼哄","降临"], coverEmoji:"🌌", img:"https://p2.music.126.net/LzNOihRBLFWCnkrXfSXj7w==/109951165751239079.jpg" },
+      { name:"Björk", emoji:"🦢", songs:["Jóga","Human Behaviour","All is Full of Love","Hyperballad"], coverEmoji:"❄️", img:"https://i.scdn.co/image/ab6761610000e5eb0ac4bc60efa35cefdfbb71f9" },
+      { name:"坂本龙一", emoji:"🎹", songs:["Merry Christmas Mr. Lawrence","Aqua","Thousand Knives","async"], coverEmoji:"🌊", img:"https://i.scdn.co/image/ab6761610000e5eb0f54ef79ba52c00e1dfad55e" },
+      { name:"FKA Twigs", emoji:"🕸", songs:["cellophane","Two Weeks","Sad Day","Tears in the Club"], coverEmoji:"🌑", img:"https://i.scdn.co/image/ab6761610000e5ebf34b7f78c3a63c30bfb8da5b" },
     ]},
   { id:16, emoji:"🏙️", name:"华语嘻哈地下客", accentColor:"#D97706", vector:[1,1,0,1],
     tagline:"华语说唱 Trap · 街头文化与地下火焰",
-    description:"你用中文说唱讲自己的故事，地下的火焰比主流的聚光灯更真实更烫。你欣赏那些不妥协的人，那些把方言和节拍混在一起的野生创造力。",
+    description:"GAI能在一首歌里把方言、戏曲和trap mix在一起你觉得这才是真的有意思的东西。你听华语说唱不是跟风，是因为这里面有用普通话写不出来的东西。",
     neteaseId:"469104548", neteaseSong:"川流不息 - GAI",
     artists:[
-      { name:"GAI 周延", emoji:"🏔", songs:["川流不息","天干物燥","落叶","两只老虎"], coverEmoji:"🔥" },
-      { name:"艾福杰尼", emoji:"🐻", songs:["阿伦大叔","弄潮儿","我是云南的"], coverEmoji:"🌿" },
-      { name:"欧阳靖", emoji:"⚡", songs:["反击","炎黄","Black Gold"], coverEmoji:"🏆" },
-      { name:"周汤豪 Nickthereal", emoji:"🎤", songs:["NǏMEN","一半","Downtown","迷"], coverEmoji:"🌆" },
+      { name:"GAI 周延", emoji:"🏔", songs:["川流不息","天干物燥","落叶","两只老虎"], coverEmoji:"🔥", img:"https://p2.music.126.net/5FXLx-XECP-JNUY9LNVWqg==/109951163500064539.jpg" },
+      { name:"艾福杰尼", emoji:"🐻", songs:["阿伦大叔","弄潮儿","我是云南的","哈里路亚"], coverEmoji:"🌿", img:"https://p2.music.126.net/TqVZ4tNS5e4r6_vpVu9RIA==/109951166878949685.jpg" },
+      { name:"欧阳靖", emoji:"⚡", songs:["反击","炎黄","Black Gold","还是会寂寞"], coverEmoji:"🏆", img:"https://p2.music.126.net/1PsABJwRNXdg0Zp0RNUOVA==/109951163440261272.jpg" },
+      { name:"周汤豪 Nickthereal", emoji:"🎤", songs:["NǏMEN","一半","Downtown","迷"], coverEmoji:"🌆", img:"https://p2.music.126.net/2RcPDkWWILNRmCUxh71pFw==/109951165734601023.jpg" },
     ]},
 ];
 
@@ -675,25 +675,18 @@ function showResult() {
   });
 }
 
-// ─── ARTIST ART (iTunes Search API) ─────────────────────────────────────────
-async function fetchAlbumArt(artistName, idx) {
-  try {
-    const url = `https://itunes.apple.com/search?term=${encodeURIComponent(artistName)}&entity=musicArtist&limit=1`;
-    const res = await fetch(url);
-    const data = await res.json();
-    const artist = data?.results?.[0];
-    if (artist?.artworkUrl100) {
-      // Get larger version: replace 100x100 with 400x400
-      const imgUrl = artist.artworkUrl100.replace('100x100', '400x400');
-      const covers = document.querySelectorAll('.artist-cover');
-      if (covers[idx]) {
-        const img = document.createElement('img');
-        img.src = imgUrl;
-        img.onerror = () => {}; // keep emoji fallback
-        covers[idx].prepend(img);
-      }
-    }
-  } catch(e) { /* silent fail */ }
+// ─── ARTIST ART (hardcoded img field) ─────────────────────────────────────────
+function fetchAlbumArt(artistName, idx) {
+  const artist = currentPersonality?.artists?.[idx];
+  if (!artist?.img) return;
+  const covers = document.querySelectorAll('.artist-cover');
+  if (!covers[idx]) return;
+  const img = document.createElement('img');
+  img.src = artist.img;
+  img.style.cssText = 'width:100%;height:100%;object-fit:cover;position:absolute;inset:0;border-radius:8px;';
+  img.onerror = () => img.remove();
+  covers[idx].style.position = 'relative';
+  covers[idx].prepend(img);
 }
 
 // ─── MUSIC PLAYER ────────────────────────────────────────────────────────────
