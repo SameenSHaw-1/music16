@@ -112,7 +112,7 @@ html, body { min-height: 100%; background: var(--bg); color: var(--text); font-f
 .artist-card:hover { transform: translateY(-3px); background: rgba(255,255,255,.45); border-color: rgba(200,100,30,.35); }
 .artist-cover { width: 100%; aspect-ratio: 1; background: linear-gradient(135deg, var(--personality-color) 0%, #0f0f1a 100%); display: flex; align-items: center; justify-content: center; font-size: 36px; position: relative; overflow: hidden; }
 .artist-cover img { width: 100%; height: 100%; object-fit: cover; position: absolute; inset: 0; }
-.artist-cover-fallback { position: relative; z-index: 1; }
+.artist-cover-fallback { position: relative; z-index: 1; font-size: 40px; transition: opacity .2s; }
 .artist-info { padding: 12px; }
 .artist-name { font-size: 12px; font-weight: 700; margin-bottom: 6px; color: #2a1200; }
 .artist-songs { display: flex; flex-direction: column; gap: 2px; }
@@ -625,7 +625,7 @@ function showResult() {
         ${top.artists.map(a => `
           <div class="artist-card">
             <div class="artist-cover">
-              <span class="artist-cover-fallback" style="font-size:40px">${a.coverEmoji}</span>
+              <span class="artist-cover-fallback">${a.coverEmoji}</span>
             </div>
             <div class="artist-info">
               <div class="artist-name">${a.name}</div>
@@ -681,12 +681,14 @@ function fetchAlbumArt(artistName, idx) {
   if (!artist?.img) return;
   const covers = document.querySelectorAll('.artist-cover');
   if (!covers[idx]) return;
+  const cover = covers[idx];
+  const fallback = cover.querySelector('.artist-cover-fallback');
   const img = document.createElement('img');
   img.src = artist.img;
-  img.style.cssText = 'width:100%;height:100%;object-fit:cover;position:absolute;inset:0;border-radius:8px;';
-  img.onerror = () => img.remove();
-  covers[idx].style.position = 'relative';
-  covers[idx].prepend(img);
+  img.style.cssText = 'width:100%;height:100%;object-fit:cover;position:absolute;inset:0;z-index:2;';
+  img.onload = () => { if (fallback) fallback.style.display = 'none'; };
+  img.onerror = () => { img.remove(); };
+  cover.appendChild(img);
 }
 
 // ─── MUSIC PLAYER ────────────────────────────────────────────────────────────
